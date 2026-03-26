@@ -64,6 +64,7 @@ El script actual está preparado para tu workflow concreto:
 Si cambias el workflow, ajusta `WorkflowNodeMap` en `src/comfy_pipeline/workflow.py`.
 
 
+
 jobs/
    ↓
 visual_manifest.json
@@ -77,3 +78,16 @@ ComfyUI API
 Qwen + Lightning + Next Scene
    ↓
 images/
+
+
+____________________
+
+visual_manifest.json
+   ↓
+Qwen Image Edit + Lightning + Next Scene
+   ↓
+images/
+   ↓
+WAN 2.2
+   ↓
+clips/
