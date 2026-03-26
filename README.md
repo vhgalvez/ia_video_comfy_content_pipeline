@@ -95,3 +95,7 @@ clips/
 ```bash
 python scripts/run_comfy_jobs.py --jobs-root jobs --workflow workflows/workflow-comfyui-basic-next-scene-v2.json --dry-run
 ```
+
+```bash
+cd /mnt/c/Users/vhgal/Documents/desarrollo/ia/neurocontent-engine
+```
