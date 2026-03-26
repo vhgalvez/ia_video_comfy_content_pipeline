@@ -1,75 +1,55 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, Iterable, Optional
-import json
 import copy
+import json
+from pathlib import Path
+from typing import Any
 
 
-@dataclass(frozen=True)
-class WorkflowNodeMap:
-    initial_prompt_node_id: int = 45
-    multiline_node_id: int = 81
-    base_save_node_id: int = 9
-    next_scene_save_node_id: int = 58
+PROMPT_NODE_ID = 45
+NEXT_SCENES_NODE_ID = 81
+LINE_INDEX_NODE_ID = 74
 
 
-class WorkflowTemplate:
-    def __init__(self, workflow: Dict[str, Any], node_map: WorkflowNodeMap | None = None):
-        self.workflow = workflow
-        self.node_map = node_map or WorkflowNodeMap()
+def load_workflow_template(workflow_path: Path | str) -> dict[str, Any]:
+    path = Path(workflow_path)
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
 
-    @classmethod
-    def from_file(cls, path: str | Path, node_map: WorkflowNodeMap | None = None) -> "WorkflowTemplate":
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return cls(data, node_map=node_map)
 
-    def render(
-        self,
-        *,
-        initial_prompt: str,
-        next_scene_lines: Iterable[str],
-        job_id: str,
-        initial_prefix: Optional[str] = None,
-        nextscene_prefix: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        wf = copy.deepcopy(self.workflow)
-        self._set_node_text(wf, self.node_map.initial_prompt_node_id, initial_prompt)
-        self._set_node_text(wf, self.node_map.multiline_node_id, "\n".join(next_scene_lines))
+def inject_workflow_values(
+    workflow: dict[str, Any],
+    *,
+    base_prompt: str,
+    next_scene_lines: str,
+) -> dict[str, Any]:
+    rendered_workflow = copy.deepcopy(workflow)
 
-        self._set_save_prefix(
-            wf,
-            self.node_map.base_save_node_id,
-            initial_prefix or f"{job_id}/flux",
-        )
-        self._set_save_prefix(
-            wf,
-            self.node_map.next_scene_save_node_id,
-            nextscene_prefix or f"{job_id}/nextscene",
-        )
-        return wf
+    _set_widget_value(rendered_workflow, PROMPT_NODE_ID, 0, base_prompt)
+    _set_widget_value(rendered_workflow, NEXT_SCENES_NODE_ID, 0, next_scene_lines)
+    _set_widget_value(rendered_workflow, LINE_INDEX_NODE_ID, -1, 0)
 
-    @staticmethod
-    def _find_node(workflow: Dict[str, Any], node_id: int) -> Dict[str, Any]:
-        for node in workflow.get("nodes", []):
-            if node.get("id") == node_id:
-                return node
-        raise KeyError(f"No se encontró el nodo {node_id} en el workflow")
+    return rendered_workflow
 
-    def _set_node_text(self, workflow: Dict[str, Any], node_id: int, value: str) -> None:
-        node = self._find_node(workflow, node_id)
-        widgets = node.setdefault("widgets_values", [])
-        if not widgets:
-            widgets.append(value)
-        else:
-            widgets[0] = value
 
-    def _set_save_prefix(self, workflow: Dict[str, Any], node_id: int, value: str) -> None:
-        node = self._find_node(workflow, node_id)
-        widgets = node.setdefault("widgets_values", [])
-        if not widgets:
-            widgets.append(value)
-        else:
-            widgets[0] = value
+def save_workflow(workflow: dict[str, Any], output_path: Path | str) -> Path:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(workflow, handle, ensure_ascii=False, indent=2)
+    return path
+
+
+def _set_widget_value(workflow: dict[str, Any], node_id: int, widget_index: int, value: Any) -> None:
+    node = _find_node(workflow, node_id)
+    widgets = node.get("widgets_values")
+    if not isinstance(widgets, list) or not widgets:
+        raise ValueError(f"Node {node_id} does not contain writable widgets_values")
+    widgets[widget_index] = value
+
+
+def _find_node(workflow: dict[str, Any], node_id: int) -> dict[str, Any]:
+    for node in workflow.get("nodes", []):
+        if node.get("id") == node_id:
+            return node
+    raise KeyError(f"Workflow node {node_id} was not found")
