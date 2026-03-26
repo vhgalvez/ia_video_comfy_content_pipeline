@@ -91,3 +91,7 @@ images/
 WAN 2.2
    ↓
 clips/
+
+```bash
+python scripts/run_comfy_jobs.py --jobs-root jobs --workflow workflows/workflow-comfyui-basic-next-scene-v2.json --dry-run
+```
