@@ -135,3 +135,78 @@ jobs/
 ## Nota sobre API
 
 Este repositorio puede renderizar workflows aunque ComfyUI no este levantado. Si `http://127.0.0.1:8188` no responde, el modo `--dry-run` sigue siendo la forma correcta de validar la plantilla y regenerar los jobs.
+
+
+
+# 🖥️ Especificaciones del Sistema
+
+| Componente        | Detalle                                                                 |
+|------------------|-------------------------------------------------------------------------|
+| GPU              | NVIDIA GeForce RTX 4070 (12 GB VRAM)                                    |
+| CPU              | AMD Ryzen 7 5700X (8 núcleos / 16 hilos)                                |
+| RAM              | 32 GB                                                                   |
+| Almacenamiento 1 | SSD 1 TB (Sistema Operativo)                                            |
+| Almacenamiento 2 | SSD / HDD 1 TB (Archivos y proyectos)                                   |
+
+---
+
+# ⚙️ Capacidades del Equipo
+
+| Área                    | Capacidad                                                                 |
+|-------------------------|--------------------------------------------------------------------------|
+| IA / LLM local          | Modelos hasta ~7B–13B (optimizados, quantizados)                        |
+| Generación de imágenes  | Excelente (Stable Diffusion, ComfyUI, Qwen Image Edit)                  |
+| Generación de video     | Media–Alta (Wan, AnimateDiff, workflows optimizados)                    |
+| Procesamiento de audio  | Alto rendimiento (WhisperX, TTS)                                        |
+| Multitarea              | Alta (32 GB RAM permite pipelines complejos)                            |
+| Render / edición        | Muy bueno (FFmpeg, pipelines automatizados)                             |
+
+---
+
+# 🚀 Uso Recomendado del Hardware
+
+## 🔹 GPU (RTX 4070)
+- Ideal para:
+  - ComfyUI (imágenes + workflows)
+  - Modelos diffusion
+  - Inferencia LLM ligera (con optimización)
+- Evitar:
+  - Cargar demasiados modelos simultáneamente (OOM)
+
+## 🔹 CPU (Ryzen 7 5700X)
+- Ideal para:
+  - Orquestación (Python, scripts)
+  - FFmpeg
+  - WhisperX en fallback CPU
+
+## 🔹 RAM (32 GB)
+- Permite:
+  - Pipeline completo (audio + imagen + video)
+  - Batch processing
+- Límite:
+  - Video pesado + múltiples modelos → cuidado
+
+## 🔹 Almacenamiento
+- SSD Sistema:
+  - OS + entornos (WSL, Python, ComfyUI)
+- SSD/HDD Datos:
+  - Outputs (videos, imágenes, audio)
+  - Modelos IA
+
+---
+
+# 🧠 Arquitectura Recomendada (TU CASO)
+
+```bash
+[WSL2 - CPU + RAM]
+Guion → TTS → Subtítulos → Orquestación
+
+        ↓
+
+[Windows - GPU RTX 4070]
+ComfyUI → Imágenes → Animación
+
+        ↓
+
+[WSL2]
+FFmpeg → Render final
