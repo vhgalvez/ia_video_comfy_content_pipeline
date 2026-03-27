@@ -69,6 +69,12 @@ python -m pip install -U --pre comfyui-manager
 python .\main.py --enable-manager --listen 127.0.0.1 --port 8188
 
 
+conda activate comfy
+cd C:\Users\vhgal\AppData\Local\Programs\ComfyUI\resources\ComfyUI
+python .\main.py --enable-manager --listen 127.0.0.1 --port 8188
+
+
+
 Terminal 2
 
 Ejecuta esto:
