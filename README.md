@@ -238,7 +238,7 @@ Notas:
 
 
 
-
+```text
 jobs/000001/visual_manifest.json
    ↓
 Python / orquestador
@@ -259,8 +259,9 @@ clips/
 FFmpeg
    ↓
 video final
+```
 
-
+------------------
 
 ## Solo renderizar todos los jobs
 
