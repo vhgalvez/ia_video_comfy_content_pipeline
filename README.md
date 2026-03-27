@@ -233,3 +233,27 @@ Notas:
 - El entorno de ejecución validado usa PyTorch 2.8.0 + CUDA 12.8 en Windows.
 - ComfyUI se ejecuta en modo `--lowvram` sobre RTX 4070 12 GB.
 - WAS Node Suite y FFmpeg están configurados y operativos.
+
+
+
+
+jobs/000001/visual_manifest.json
+   ↓
+Python / orquestador
+   ↓
+rendered_comfy_workflow.json
+   ↓
+ComfyUI
+   ├── Qwen Image Edit
+   ├── Lightning
+   └── Next Scene
+   ↓
+images/
+   ↓
+workflow WAN 2.2
+   ↓
+clips/
+   ↓
+FFmpeg
+   ↓
+video final
