@@ -1,39 +1,104 @@
 # Comfy Content Pipeline
 
-Pipeline para convertir cada `jobs/<id>/visual_manifest.json` en un workflow ejecutable de ComfyUI, generar imágenes consistentes con **Qwen Image Edit + Lightning + Next Scene**, y dejar preparado el paso posterior a WAN 2.2.
+Pipeline para convertir cada `jobs/<id>/visual_manifest.json` en un workflow renderizado de ComfyUI para la fase de imagen con **Qwen Image Edit + Lightning + Next Scene**, dejando separada la fase posterior de video con **WAN 2.2**.
 
-## Qué hace
+## Rol de cada archivo
+
+- Workflow base editable: `workflows/workflow-comfyui-basic-next-scene-v2.json`
+- Workflow renderizado por job: `jobs/<id>/rendered_comfy_workflow.json`
+- Entrada editorial por job: `jobs/<id>/visual_manifest.json`
+
+Regla operativa:
+
+- La plantilla que se corrige es el workflow base.
+- El archivo que se ejecuta por job es el workflow renderizado.
+- No uses como referencia copias viejas de `rendered_comfy_workflow.json` dentro de `images/`.
+
+## Qué hace este proyecto
 
 - Lee `jobs/*/visual_manifest.json`
-- Construye prompts a partir de `scene_plan[].comfy_prompt_base`
-- Inyecta esos prompts dentro de `workflow-comfyui-basic-next-scene-v2.json`
-- Envía el workflow modificado a la API de ComfyUI
-- Guarda una copia del workflow renderizado dentro del job
-- Opcionalmente espera a que termine la ejecución y guarda metadatos
+- Construye el prompt base desde `scene_plan[0].comfy_prompt_base`
+- Construye la lista de escenas desde `scene_plan[].comfy_prompt_base`
+- Inyecta esos valores en `workflow-comfyui-basic-next-scene-v2.json`
+- Guarda `rendered_comfy_workflow.json` dentro de cada job
+- Opcionalmente envía el workflow a la API de ComfyUI
 
-## Estructura esperada
+## Arquitectura final
+
+### Fase 1: imagen
 
 ```text
-jobs/
-├── 000001/
-│   ├── audio/narration.wav
-│   ├── subtitles/narration.srt
-│   ├── brief.json
-│   ├── script.json
-│   ├── status.json
-│   └── visual_manifest.json
-└── 000002/
+visual_manifest.json
+  -> comfy_prompt_base
+  -> Qwen Image Edit + Lightning + Next Scene
+  -> images/
 ```
 
-## Instalación
+### Fase 2: video
+
+```text
+visual_manifest.json
+  -> wan_prompt_base
+  -> WAN 2.2
+  -> clips/
+```
+
+WAN 2.2 no forma parte del workflow base actual de imagen. Debe vivir en otro workflow separado para video.
+
+## Modelos esperados por el workflow base actual
+
+El workflow base actual esta alineado con esta familia:
+
+- `vae/Qwen_Image-VAE.safetensors`
+- `text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors`
+- `diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors`
+- `loras/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors`
+- `loras/next-scene_lora-v2-3000.safetensors`
+
+No cambies este workflow base a WAN 2.2 ni a GGUF salvo que tambien rediseñes el workflow completo.
+
+## Nodos que modifica el renderer
+
+El renderer actual modifica estos nodos del workflow base:
+
+- Nodo `68`: prompt base de imagen (`TextEncodeQwenImageEditPlus`)
+- Nodo `81`: bloque multilinea de escenas (`Text Multiline`)
+- Nodo `74`: selector de linea (`Text Load Line From File`)
+
+Implementacion en:
+
+- `src/comfy_pipeline/workflow.py`
+
+Compatibilidad heredada:
+
+- `workflow.py` acepta tambien el nodo legado `45` si reaparece en una variante anterior del workflow.
+
+## Validacion manual en ComfyUI
+
+- El nodo `Text Load Line From File` debe quedarse en indice `0` durante validacion manual.
+- El nodo `LoadImage` usa `example.png` desde `ComfyUI/input`.
+- La nota del workflow base ya recuerda esta regla.
+
+## Flujo recomendado
+
+### 1. Renderizar jobs sin ejecutar ComfyUI
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/WSL
-pip install -r requirements.txt
+python scripts/run_comfy_jobs.py \
+  --jobs-root /ruta/a/jobs \
+  --workflow /ruta/a/workflow-comfyui-basic-next-scene-v2.json \
+  --dry-run
 ```
 
-## Ejemplo de uso
+### 2. Revisar el workflow renderizado correcto
+
+```text
+jobs/<id>/rendered_comfy_workflow.json
+```
+
+### 3. Ejecutar ese workflow por job
+
+Si usas el script:
 
 ```bash
 python scripts/run_comfy_jobs.py \
@@ -43,59 +108,30 @@ python scripts/run_comfy_jobs.py \
   --wait
 ```
 
-## Modo prueba sin enviar a ComfyUI
+Si haces pruebas manuales en la UI, carga el `rendered_comfy_workflow.json` de la raiz del job, no una copia antigua en `images/`.
 
-```bash
-python scripts/run_comfy_jobs.py \
-  --jobs-root /ruta/a/jobs \
-  --workflow /ruta/a/workflow-comfyui-basic-next-scene-v2.json \
-  --dry-run
-```
+## Estructura esperada
 
-## Nodos que modifica este proyecto
-
-El script actual está preparado para tu workflow concreto:
-
-- Nodo `45` → prompt inicial (`CLIPTextEncode`)
-- Nodo `81` → bloque multilinea de escenas (`Text Multiline`)
-- Nodo `9` → prefijo de guardado de imagen base (`SaveImage`)
-- Nodo `58` → prefijo de guardado de escenas (`SaveImage`)
-
-Si cambias el workflow, ajusta `WorkflowNodeMap` en `src/comfy_pipeline/workflow.py`.
-
-
-
+```text
 jobs/
-   ↓
-visual_manifest.json
-   ↓
-run_pipeline.sh / .bat
-   ↓
-Python
-   ↓
-ComfyUI API
-   ↓
-Qwen + Lightning + Next Scene
-   ↓
-images/
-
-
-____________________
-
-visual_manifest.json
-   ↓
-Qwen Image Edit + Lightning + Next Scene
-   ↓
-images/
-   ↓
-WAN 2.2
-   ↓
-clips/
-
-```bash
-python scripts/run_comfy_jobs.py --jobs-root jobs --workflow workflows/workflow-comfyui-basic-next-scene-v2.json --dry-run
+├── 000001/
+│   ├── audio/
+│   ├── images/
+│   ├── subtitles/
+│   ├── brief.json
+│   ├── script.json
+│   ├── status.json
+│   ├── visual_manifest.json
+│   └── rendered_comfy_workflow.json
+└── 000002/
 ```
 
-```bash
-cd /mnt/c/Users/vhgal/Documents/desarrollo/ia/neurocontent-engine
-```
+## Estado actual del codigo
+
+- `src/comfy_pipeline/workflow.py` es requerido por `src/comfy_pipeline/orchestrator.py`
+- El `dry-run` debe regenerar `rendered_comfy_workflow.json` por job
+- La fase `visual_manifest -> rendered workflow` queda separada de la fase WAN 2.2
+
+## Nota sobre API
+
+Este repositorio puede renderizar workflows aunque ComfyUI no este levantado. Si `http://127.0.0.1:8188` no responde, el modo `--dry-run` sigue siendo la forma correcta de validar la plantilla y regenerar los jobs.
