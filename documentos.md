@@ -51,7 +51,7 @@ python main.py --listen 127.0.0.1 --port 8188
 
 
 
-
+cd C:\Users\vhgal\Documents\desarrollo\ia\ia_video_comfy_content_pipeline
 
 
 Terminal 1
