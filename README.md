@@ -136,36 +136,35 @@ jobs/
 
 Este repositorio puede renderizar workflows aunque ComfyUI no este levantado. Si `http://127.0.0.1:8188` no responde, el modo `--dry-run` sigue siendo la forma correcta de validar la plantilla y regenerar los jobs.
 
-
-
 # 🖥️ Especificaciones del Sistema
 
-| Componente        | Detalle                                                                 |
-|------------------|-------------------------------------------------------------------------|
-| GPU              | NVIDIA GeForce RTX 4070 (12 GB VRAM)                                    |
-| CPU              | AMD Ryzen 7 5700X (8 núcleos / 16 hilos)                                |
-| RAM              | 32 GB                                                                   |
-| Almacenamiento 1 | SSD 1 TB (Sistema Operativo)                                            |
-| Almacenamiento 2 | SSD / HDD 1 TB (Archivos y proyectos)                                   |
+| Componente       | Detalle                                  |
+| ---------------- | ---------------------------------------- |
+| GPU              | NVIDIA GeForce RTX 4070 (12 GB VRAM)     |
+| CPU              | AMD Ryzen 7 5700X (8 núcleos / 16 hilos) |
+| RAM              | 32 GB                                    |
+| Almacenamiento 1 | SSD 1 TB (Sistema Operativo)             |
+| Almacenamiento 2 | SSD / HDD 1 TB (Archivos y proyectos)    |
 
 ---
 
 # ⚙️ Capacidades del Equipo
 
-| Área                    | Capacidad                                                                 |
-|-------------------------|--------------------------------------------------------------------------|
-| IA / LLM local          | Modelos hasta ~7B–13B (optimizados, quantizados)                        |
-| Generación de imágenes  | Excelente (Stable Diffusion, ComfyUI, Qwen Image Edit)                  |
-| Generación de video     | Media–Alta (Wan, AnimateDiff, workflows optimizados)                    |
-| Procesamiento de audio  | Alto rendimiento (WhisperX, TTS)                                        |
-| Multitarea              | Alta (32 GB RAM permite pipelines complejos)                            |
-| Render / edición        | Muy bueno (FFmpeg, pipelines automatizados)                             |
+| Área                   | Capacidad                                              |
+| ---------------------- | ------------------------------------------------------ |
+| IA / LLM local         | Modelos hasta ~7B–13B (optimizados, quantizados)       |
+| Generación de imágenes | Excelente (Stable Diffusion, ComfyUI, Qwen Image Edit) |
+| Generación de video    | Media–Alta (Wan, AnimateDiff, workflows optimizados)   |
+| Procesamiento de audio | Alto rendimiento (WhisperX, TTS)                       |
+| Multitarea             | Alta (32 GB RAM permite pipelines complejos)           |
+| Render / edición       | Muy bueno (FFmpeg, pipelines automatizados)            |
 
 ---
 
 # 🚀 Uso Recomendado del Hardware
 
 ## 🔹 GPU (RTX 4070)
+
 - Ideal para:
   - ComfyUI (imágenes + workflows)
   - Modelos diffusion
@@ -174,12 +173,14 @@ Este repositorio puede renderizar workflows aunque ComfyUI no este levantado. Si
   - Cargar demasiados modelos simultáneamente (OOM)
 
 ## 🔹 CPU (Ryzen 7 5700X)
+
 - Ideal para:
   - Orquestación (Python, scripts)
   - FFmpeg
   - WhisperX en fallback CPU
 
 ## 🔹 RAM (32 GB)
+
 - Permite:
   - Pipeline completo (audio + imagen + video)
   - Batch processing
@@ -187,6 +188,7 @@ Este repositorio puede renderizar workflows aunque ComfyUI no este levantado. Si
   - Video pesado + múltiples modelos → cuidado
 
 ## 🔹 Almacenamiento
+
 - SSD Sistema:
   - OS + entornos (WSL, Python, ComfyUI)
 - SSD/HDD Datos:
@@ -197,7 +199,7 @@ Este repositorio puede renderizar workflows aunque ComfyUI no este levantado. Si
 
 # 🧠 Arquitectura Recomendada (TU CASO)
 
-```bash
+````bash
 [WSL2 - CPU + RAM]
 Guion → TTS → Subtítulos → Orquestación
 
@@ -257,3 +259,32 @@ clips/
 FFmpeg
    ↓
 video final
+
+
+
+## Solo renderizar todos los jobs
+
+```bash
+  python scripts\render_jobs_and_prepare.py ^
+  --jobs-root C:\Users\vhgal\Documents\desarrollo\ia\neurocontent-engine\jobs ^
+  --workflow C:\Users\vhgal\Documents\desarrollo\ia\ia_video_comfy_content_pipeline\workflows\workflow-comfyui-basic-next-scene-v2.json
+````
+
+## Solo un job
+
+```bash
+  python scripts\render_jobs_and_prepare.py ^
+  --jobs-root C:\Users\vhgal\Documents\desarrollo\ia\neurocontent-engine\jobs ^
+  --workflow C:\Users\vhgal\Documents\desarrollo\ia\ia_video_comfy_content_pipeline\workflows\workflow-comfyui-basic-next-scene-v2.json ^
+  --only-job 000001
+```
+
+## Ejecutar en ComfyUI
+
+```bash
+  python scripts\render_jobs_and_prepare.py ^
+  --jobs-root C:\Users\vhgal\Documents\desarrollo\ia\neurocontent-engine\jobs ^
+  --workflow C:\Users\vhgal\Documents\desarrollo\ia\ia_video_comfy_content_pipeline\workflows\workflow-comfyui-basic-next-scene-v2.json ^
+  --execute ^
+  --wait
+```

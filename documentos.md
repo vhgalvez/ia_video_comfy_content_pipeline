@@ -89,3 +89,6 @@ python -m pip install -r .\requirements.txt
 python scripts\run_comfy_jobs.py --jobs-root C:\Users\vhgal\Documents\desarrollo\ia\neurocontent-engine\jobs --workflow workflows\workflow-comfyui-basic-next-scene-v2.json --comfy-url http://127.0.0.1:8188 --wait
 
 
+
+
+
