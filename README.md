@@ -210,3 +210,26 @@ ComfyUI → Imágenes → Animación
 
 [WSL2]
 FFmpeg → Render final
+
+
+
+
+##  Modelos esperados por el workflow base actual
+
+El workflow base actual está alineado con esta familia:
+
+- `vae/Qwen_Image-VAE.safetensors`
+- `text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors`
+- `unet/Qwen-Image-Edit-2509-Q3_K_M.gguf`
+- `loras/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors`
+- `loras/next-scene_lora-v2-3000.safetensors`
+
+Notas:
+- El workflow ya no usa el diffusion model pesado `qwen_image_edit_2509_fp8_e4m3fn.safetensors`.
+- El workflow actual requiere `ComfyUI-GGUF`.
+- El modelo GGUF debe ubicarse en `ComfyUI/models/unet/`.
+
+- El workflow base actual fue adaptado para usar GGUF en lugar del modelo pesado safetensors.
+- El entorno de ejecución validado usa PyTorch 2.8.0 + CUDA 12.8 en Windows.
+- ComfyUI se ejecuta en modo `--lowvram` sobre RTX 4070 12 GB.
+- WAS Node Suite y FFmpeg están configurados y operativos.
