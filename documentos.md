@@ -41,5 +41,41 @@ d-----        26/03/2026     17:56                subtitles
 
 
 
-
 Copy-Item C:\Users\vhgal\Documents\desarrollo\ia\neurocontent-engine\jobs\000001\rendered_comfy_workflow.json C:\Users\vhgal\Documents\desarrollo\ia\neurocontent-engine\jobs\000001\images\
+
+
+cd C:\Users\vhgal\AppData\Local\Programs\ComfyUI\resources\ComfyU 
+
+python main.py --listen 127.0.0.1 --port 8188
+
+
+
+
+
+
+
+Terminal 1
+
+Déjala así, sin cerrarla:
+
+conda activate comfy
+cd C:\Users\vhgal\AppData\Local\Programs\ComfyUI\resources\ComfyUI
+python main.py --listen 127.0.0.1 --port 8188
+
+
+conda activate comfy
+cd C:\Users\vhgal\AppData\Local\Programs\ComfyUI\resources\ComfyUI
+python -m pip install -U --pre comfyui-manager
+python .\main.py --enable-manager --listen 127.0.0.1 --port 8188
+
+
+Terminal 2
+
+Ejecuta esto:
+
+conda activate comfy
+cd C:\Users\vhgal\Documents\desarrollo\ia\ia_video_comfy_content_pipeline
+python -m pip install -r .\requirements.txt
+python scripts\run_comfy_jobs.py --jobs-root C:\Users\vhgal\Documents\desarrollo\ia\neurocontent-engine\jobs --workflow workflows\workflow-comfyui-basic-next-scene-v2.json --comfy-url http://127.0.0.1:8188 --wait
+
+
