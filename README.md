@@ -289,3 +289,50 @@ video final
   --execute ^
   --wait
 ```
+
+
+## video-dataset
+
+
+```text
+
+C:\Users\vhgal\Documents\desarrollo\ia\AI-video-automation\video-dataset
+
+video-dataset/
+├── jobs/
+│   └── 000001/
+│       ├── job.json
+│       ├── status.json
+│       ├── source/
+│       │   ├── 000001_brief.json
+│       │   ├── 000001_script.json
+│       │   ├── 000001_visual_manifest.json
+│       │   └── 000001_rendered_comfy_workflow.json
+│       ├── audio/
+│       │   └── 000001_narration.wav
+│       ├── subtitles/
+│       │   └── 000001_narration.srt
+│       ├── images/
+│       │   ├── scene_001.png
+│       │   ├── scene_003.png
+│       │   └── previews/
+│       ├── videos/
+│       │   ├── scene_002.mp4
+│       │   └── previews/
+│       ├── logs/
+│       │   ├── 000001_phase_editorial.log
+│       │   ├── 000001_phase_audio.log
+│       │   └── 000001_phase_subtitles.log
+│       ├── timeline/
+│       │   └── vertical/
+│       └── output/
+│           └── vertical/
+└── voices/
+    ├── voice_global_0001/
+    │   ├── voice.json
+    │   ├── reference.wav
+    │   ├── reference.txt
+    │   └── voice_clone_prompt.json
+    └── voices_index.json
+
+```
