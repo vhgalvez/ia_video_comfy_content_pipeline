@@ -338,6 +338,100 @@ video-dataset/
 ```
 
 
+1. Detecta jobs existentes automáticamente
+
+
+
 ```bash
 ./create_video_jobs.sh
 ```
+
+En vez de depender de:
+
+000001
+000002
+000003
+
+busca directorios reales dentro de:
+
+${JOBS_ROOT}
+
+Eso es mejor porque tus jobs pueden ser distintos.
+
+2. Permite elegir target
+
+Con:
+
+--target vertical
+--target horizontal
+--target both
+3. Crea la parte visual manual
+
+Ahora también crea:
+
+images/previews
+videos/previews
+4. Crea estructura de render solo para el target elegido
+
+Ejemplo:
+
+Vertical
+timeline/vertical
+output/vertical
+Horizontal
+timeline/horizontal
+output/horizontal
+Ambos
+
+crea las dos.
+
+Cómo usarlo
+Para todos los jobs existentes, solo vertical
+bash wsl/create_video_jobs.sh --target vertical
+Para todos los jobs existentes, solo horizontal
+bash wsl/create_video_jobs.sh --target horizontal
+Para todos los jobs existentes, ambos
+bash wsl/create_video_jobs.sh --target both
+Solo para un job
+bash wsl/create_video_jobs.sh --job-id 000001 --target vertical
+Árbol resultante para vertical
+video-dataset/
+└── jobs/
+    └── 000001/
+        ├── job.json
+        ├── status.json
+        ├── source/
+        ├── audio/
+        ├── subtitles/
+        ├── logs/
+        ├── images/
+        │   └── previews/
+        ├── videos/
+        │   └── previews/
+        ├── timeline/
+        │   └── vertical/
+        └── output/
+            └── vertical/
+Importante
+
+Los archivos como:
+
+scene_001.png
+scene_002.mp4
+
+no los crea el script, porque esos los vas a meter tú manualmente.
+
+El script solo te deja lista la estructura.
+
+Recomendación final
+
+Usa:
+
+bash wsl/create_video_jobs.sh --target both
+
+si quieres dejar desde ya preparado:
+
+vertical
+horizontal
+
+aunque de momento uses solo uno.
